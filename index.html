@@ -2,64 +2,57 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Localização ao Clicar</title>
+  <title>Envio de Localização</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background-color: white;
+      background-color: #f0f0f0;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: sans-serif;
-      user-select: none;
+      font-family: Arial, sans-serif;
       cursor: pointer;
     }
-    #output {
+    #status {
       text-align: center;
+      font-size: 1.2em;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <!-- ESSA DIV É O QUE ESTAVA FALTANDO -->
-  <div id="output">Clique para enviar sua localização.</div>
+  <div id="status">Clique em qualquer lugar para enviar sua localização.</div>
 
   <script>
-    const webhookURL = 'https://script.google.com/macros/s/AKfycbx4SogKFhuqpherPNzXMRrb90g556MItX6pcXjCvb267BCv9EB2eJ-JXZ8hcZ-nF4M-Og/exec';
+    const formURL = 'https://docs.google.com/forms/d/e/1FAIpQLSdpX76HCgkwL3ZqJCELRTJHTgFjbK1mNOx00Oy9dNqD2jyC1A/formResponse';
+    const latitudeEntry = 'entry.138873872';
+    const longitudeEntry = 'entry.1715135382';
 
     document.body.addEventListener('click', () => {
+      const status = document.getElementById('status');
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          position => {
-            const lat = position.coords.latitude.toFixed(6);
-            const lon = position.coords.longitude.toFixed(6);
+        status.textContent = 'Obtendo localização...';
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
 
-            const output = document.getElementById('output');
-            if (output) {
-              output.textContent = `Latitude: ${lat} | Longitude: ${lon}`;
-            }
+          const formData = new FormData();
+          formData.append(latitudeEntry, lat);
+          formData.append(longitudeEntry, lon);
 
-            // Enviar para o webhook
-            fetch(webhookURL, {
-              method: 'POST',
-              body: JSON.stringify({ latitude: lat, longitude: lon }),
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-          },
-          error => {
-            const output = document.getElementById('output');
-            if (output) {
-              output.textContent = "Permissão negada ou erro ao obter localização.";
-            }
-          }
-        );
+          fetch(formURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData
+          });
+
+          status.textContent = `Localização enviada: Latitude ${lat.toFixed(6)}, Longitude ${lon.toFixed(6)}`;
+        }, error => {
+          status.textContent = 'Não foi possível obter a localização.';
+        });
       } else {
-        const output = document.getElementById('output');
-        if (output) {
-          output.textContent = "Geolocalização não suportada pelo navegador.";
-        }
+        status.textContent = 'Geolocalização não suportada pelo navegador.';
       }
     });
   </script>
