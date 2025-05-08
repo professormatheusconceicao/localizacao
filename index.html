@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Localização ao Clicar</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      user-select: none;
+      cursor: pointer;
+    }
+    #output {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- ESSA DIV É O QUE ESTAVA FALTANDO -->
+  <div id="output">Clique para enviar sua localização.</div>
+
+  <script>
+    const webhookURL = 'https://script.google.com/macros/s/AKfycbx4SogKFhuqpherPNzXMRrb90g556MItX6pcXjCvb267BCv9EB2eJ-JXZ8hcZ-nF4M-Og/exec';
+
+    document.body.addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude.toFixed(6);
+            const lon = position.coords.longitude.toFixed(6);
+
+            const output = document.getElementById('output');
+            if (output) {
+              output.textContent = `Latitude: ${lat} | Longitude: ${lon}`;
+            }
+
+            // Enviar para o webhook
+            fetch(webhookURL, {
+              method: 'POST',
+              body: JSON.stringify({ latitude: lat, longitude: lon }),
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+          },
+          error => {
+            const output = document.getElementById('output');
+            if (output) {
+              output.textContent = "Permissão negada ou erro ao obter localização.";
+            }
+          }
+        );
+      } else {
+        const output = document.getElementById('output');
+        if (output) {
+          output.textContent = "Geolocalização não suportada pelo navegador.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
